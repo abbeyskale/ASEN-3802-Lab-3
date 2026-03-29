@@ -49,6 +49,7 @@ scatter(x1,y1,'filled');
 title('NACA 0021');
 yline(0,'Color','r','LineStyle','--'); % camber line
 axis equal; 
+legend('Airfoil Shape','Panel Separations','Camber Line');
 grid on;
 
 figure;
@@ -58,6 +59,7 @@ scatter(x2,y2,'filled');
 plot(x_cam,yc,'Color','r','LineStyle','--'); % camber line
 title('NACA 2421 with Camber Line');
 axis equal; 
+legend('Airfoil Shape','Panel Separations','Camber Line');
 grid on;
 
 
