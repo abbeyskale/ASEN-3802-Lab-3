@@ -47,6 +47,7 @@ plot(x1,y1, 'LineStyle','-');
 hold on;
 scatter(x1,y1,'filled');
 title('NACA 0021');
+yline(0,'Color','r','LineStyle','--'); % camber line
 axis equal; 
 grid on;
 
