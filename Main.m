@@ -1,9 +1,11 @@
 %% ASEN 3802 - Computational Assigment 01 - Main
-% Problem Statement
+% This code uses the vortex panel method to plot the x and y coordinates of
+% symmetrical and cambered airfoils
 
 % Author: Maria Arrazola
 % Collaborators: Abbey Skale
 % Date: March 27th 2026
+
 
 clc; clear; close all;
 

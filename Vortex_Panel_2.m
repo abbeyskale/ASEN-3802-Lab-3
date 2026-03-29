@@ -1,4 +1,4 @@
-function [CL,CP,CIRC,X,Y] = Vortex_Panel(XB,YB,VINF,ALPHA,FLAG)
+function [CL,CP,CIRC,X,Y] = Vortex_Panel_2(XB,YB,VINF,ALPHA,FLAG)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Input:                          %
