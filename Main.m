@@ -6,7 +6,6 @@
 % Collaborators: Abbey Skale
 % Date: March 27th 2026
 
-
 clc; clear; close all;
 
 %% Parameters 
@@ -14,9 +13,8 @@ c=1;
 N=50;
 t=21/100;
 
-% Flow conditions (freesteam velocity and AoA)
-V_freestream= 1;
-alpha=5;
+% Flow conditions
+alpha = 12; % degrees
 
 % NACA 0021 Parameters 
 m1= 0;
@@ -32,17 +30,16 @@ p2= 4/10;
 [x2,y2,x_cam,yc]=NACA_Airfoils(m2,p2,t,c,N);
 
 %Running vortex panel method 
-[CL1,CP1,~, Xcp1, Ycp1]=Vortex_Panel_2(x1,y1,V_freestream,alpha,0);
-[CL2,CP2,~, Xcp2, Ycp2]=Vortex_Panel_2(x2,y2,V_freestream,alpha,1);
+CL1 = Vortex_Panel_2(x1,y1,alpha);
+CL2 = Vortex_Panel_2(x2,y2,alpha);
 
 %% Displaying CL for Airfoils 
 fprintf('CL for NACA 0021: %.4f\n', CL1);
 fprintf('CL for NACA 2421: %.4f\n', CL2);
 
 %% Plot 
-
-legend('NACA 2421', 'Camber Line');
 figure;
+legend('NACA 2421', 'Camber Line');
 plot(x1,y1, 'LineStyle','-');
 hold on;
 scatter(x1,y1,'filled');
