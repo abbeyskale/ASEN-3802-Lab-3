@@ -217,7 +217,7 @@ fprintf('Vortex panel zero-lift angle for NACA 0018 = %.4f deg\n', alphaL0_0018_
 %% Plot 
 
 %Task 1 Plots 
-figure;
+figure(1);
 legend('NACA 2421', 'Camber Line');
 plot(x1,y1, 'LineStyle','-');
 hold on;
@@ -227,9 +227,10 @@ yline(0,'Color','r','LineStyle','--'); % camber line
 axis equal; 
 legend('Airfoil Shape','Panel Separations','Camber Line');
 grid on;
-print('Task1NACA0021','-dpng','-r300')
+print('Task1NACA0021','-dpng','-r300');
+hold off
 
-figure;
+figure(2);
 plot(x2,y2,'LineStyle','-'); 
 hold on;
 scatter(x2,y2,'filled');
@@ -239,10 +240,11 @@ axis equal;
 legend('Airfoil Shape','Panel Separations','Camber Line');
 grid on;
 print('Task1NACA2421','-dpng','-r300')
+hold off
 
 %Task 2 Plots
 
-figure;
+figure(3);
 plot(N_val,CL_val,'-o');
 hold on;
 yline(CL3,'Linestyle','--');
@@ -252,9 +254,10 @@ ylabel('Cl');
 title('Convergence of cl with Number of Panels');
 legend('Computed Cl', 'Exact Cl','1% error', 'Location','Best');
 grid on;
+hold off
 
 % FOR NACA 0012 Geometry 
-figure;
+figure(4);
 plot(x3,y3,'LineStyle','-');
 hold on;
 scatter(x3,y3,'filled');
@@ -263,6 +266,7 @@ title('NACA 0012');
 axis equal;
 legend('Airfoil Shape','Panel Separations','Camber Line');
 grid on;
+hold off
 
 %% Task 3 Plots
 figure(4)
