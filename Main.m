@@ -95,6 +95,19 @@ grid on;
 print('Task1NACA2421','-dpng','-r300')
 
 %Task 2 Plots
+
+figure;
+plot(N_val,CL_val,'-o');
+hold on;
+yline(CL3,'Linestyle','--');
+xline(N_min,'Linestyle','--');
+xlabel('Number of Panels');
+ylabel('Cl');
+title('Convergence of cl with Number of Panels');
+legend('Computed Cl', 'Exact Cl','1% error', 'Location','Best');
+grid on;
+
+% FOR NACA 0012 Geometry 
 figure;
 plot(x3,y3,'LineStyle','-');
 hold on;
@@ -104,7 +117,5 @@ title('NACA 0012');
 axis equal;
 legend('Airfoil Shape','Panel Separations','Camber Line');
 grid on;
-
-
 
 
