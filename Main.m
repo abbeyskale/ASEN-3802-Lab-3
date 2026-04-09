@@ -70,8 +70,8 @@ fprintf('CL at N= %d is %.4f, relative error is %.2f%%\n\n', N_min,CL_val(index)
 
 %% -------- Task 3 ------------
 
-% For symmetric airfoils, alpha_L=0 = 0 deg and:
-% c_l = 2*pi*alpha, where alpha must be in radians
+% For symmetric airfoils, alpha_L=0 = 0 deg and 
+% c_l = 2*pi*alpha, where alpha is in radians
 alphaTheory_deg = -15:0.1:15;
 clTheory = 2*pi*deg2rad(alphaTheory_deg);
 slopeTheory_deg = 2*pi*(pi/180);
@@ -158,7 +158,7 @@ fprintf('\n');
 
 % Use the total number of panels determined in Task 2
 c = 1;
-N_panels = 40;
+N_panels = 36;
 alphaVP_deg = -15:1:15;
 
 % Symmetric airfoil parameters
@@ -214,7 +214,7 @@ fprintf('\n');
 fprintf('Vortex panel lift slope for NACA 0018 = %.4f per degree\n', slope0018_vp);
 fprintf('Vortex panel zero-lift angle for NACA 0018 = %.4f deg\n', alphaL0_0018_vp);
 
-%%% ---- Task 4 -----
+%% ---- Task 4 -----
 
 %% Experimental data: NACA 0012
 exp0012 = [
