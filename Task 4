@@ -1,0 +1,221 @@
+%% Experimental data: NACA 0012
+exp0012 = [
+  -15.7811   -1.55776
+  -14.2488   -1.47278
+  -13.1343   -1.37389
+  -11.0448   -1.17616
+  -10.0697   -1.08435
+   -8.11940  -0.851509
+   -6.16915  -0.667899
+   -5.05473  -0.526806
+   -2.82587  -0.307924
+   -0.875622 -0.110247
+    1.07463   0.115564
+    3.02488   0.341376
+    5.25373   0.532124
+    7.90050   0.877769
+   10.1294    1.08258
+   12.0796    1.24509
+   14.0299    1.41464
+   15.5622    1.54885
+];
+
+alpha0012_deg = exp0012(:,1);
+cl0012_exp = exp0012(:,2);
+
+% Selected linear region for slope calculation
+linearMask0012 = (alpha0012_deg >= -8) & (alpha0012_deg <= 5);
+alpha0012_lin = alpha0012_deg(linearMask0012);
+cl0012_lin = cl0012_exp(linearMask0012);
+
+% Linear fit: c_l = m*alpha + b
+fit0012 = polyfit(alpha0012_lin, cl0012_lin, 1);
+slope0012_exp = fit0012(1);
+alphaL0_0012_exp = -fit0012(2)/fit0012(1);
+
+
+exp2412 = [
+ -12.3333     -1.00098
+ -10.1667    -0.808754
+ -8.33333    -0.625012
+ -6.33333    -0.416259
+ -4.16667    -0.190801
+       -2    0.0429649
+-0.166667     0.243323
+  2.16667     0.427324
+  4.16667      0.62777
+  6.16667     0.836523
+        8      1.02026
+  10.3333      1.16272];
+
+alpha2412_deg = exp2412(:,1);
+cl2412_exp = exp2412(:,2);
+
+% Selected linear region for slope calculation
+linearMask2412 = (alpha2412_deg >= -8) & (alpha2412_deg <= 6);
+alpha2412_lin = alpha2412_deg(linearMask2412);
+cl2412_lin = cl2412_exp(linearMask2412);
+
+% Linear fit: c_l = m*alpha + b
+fit2412 = polyfit(alpha2412_lin, cl2412_lin, 1);
+slope2412_exp = fit2412(1);
+alphaL0_2412_exp = -fit2412(2)/fit2412(1);
+
+exp4412 = [
+-12.0235    -0.761387
+-10.0614    -0.670427
+-7.76352    -0.464257
+-5.79063    -0.249946
+-3.81701   -0.0274128
+-1.84412     0.186897
+0.454483     0.401291
+ 2.10095     0.607294
+ 4.39956     0.821688
+ 6.69816      1.03608
+ 8.50461      1.20923
+ 10.6368      1.38247];
+
+alpha4412_deg = exp4412(:,1);
+cl4412_exp = exp4412(:,2);
+
+% Selected linear region for slope calculation
+linearMask4412 = (alpha4412_deg >= -8) & (alpha4412_deg <= 6);
+alpha4412_lin = alpha4412_deg(linearMask4412);
+cl4412_lin = cl4412_exp(linearMask4412);
+
+% Linear fit: c_l = m*alpha + b
+fit4412 = polyfit(alpha4412_lin, cl4412_lin, 1);
+slope4412_exp = fit4412(1);
+alphaL0_4412_exp = -fit4412(2)/fit4412(1);
+
+%% Minimum Panel count
+N_panels = 36;
+
+% Angle ranges
+alphaVP_deg = -15:1:15;
+alphaTheory_deg = -15:0.1:15;
+
+% Airfoil definitions
+c = 1;
+t = 0.12;
+
+m0012 = 0.00;  p0012 = 0.0;
+m2412 = 0.02;  p2412 = 0.4;
+m4412 = 0.04;  p4412 = 0.4;
+
+%% Thin airfoil theory
+
+% Lift slope (same for all airfoils)
+slopeTheory_deg = 2*pi*(pi/180);
+
+% Zero-lift angle
+alphaL0_0012_theory = 0;
+
+alphaL0_2412_theory = -2*m2412/p2412*(1 - p2412);
+alphaL0_4412_theory = -2*m4412/p4412*(1 - p4412);
+
+% Convert to degrees
+alphaL0_2412_theory = rad2deg(alphaL0_2412_theory);
+alphaL0_4412_theory = rad2deg(alphaL0_4412_theory);
+
+% Lift curves
+cl0012_theory = 2*pi*deg2rad(alphaTheory_deg - alphaL0_0012_theory);
+cl2412_theory = 2*pi*deg2rad(alphaTheory_deg - alphaL0_2412_theory);
+cl4412_theory = 2*pi*deg2rad(alphaTheory_deg - alphaL0_4412_theory);
+
+%% Vortex panel setup
+
+[xb0012, yb0012, ~, ~] = NACA_Airfoils(m0012,p0012,t,c,N_panels);
+[xb2412, yb2412, ~, ~] = NACA_Airfoils(m2412,p2412,t,c,N_panels);
+[xb4412, yb4412, ~, ~] = NACA_Airfoils(m4412,p4412,t,c,N_panels);
+
+cl0012_vp = zeros(size(alphaVP_deg));
+cl2412_vp = zeros(size(alphaVP_deg));
+cl4412_vp = zeros(size(alphaVP_deg));
+
+for i = 1:length(alphaVP_deg)
+    alpha_i = alphaVP_deg(i);
+    cl0012_vp(i) = Vortex_Panel_2(xb0012,yb0012,alpha_i);
+    cl2412_vp(i) = Vortex_Panel_2(xb2412,yb2412,alpha_i);
+    cl4412_vp(i) = Vortex_Panel_2(xb4412,yb4412,alpha_i);
+end
+
+%% Vortex panel lift slope and zero-lift angle
+
+linearMaskVP = (alphaVP_deg >= -6) & (alphaVP_deg <= 6);
+
+fit0012_vp = polyfit(alphaVP_deg(linearMaskVP), cl0012_vp(linearMaskVP), 1);
+fit2412_vp = polyfit(alphaVP_deg(linearMaskVP), cl2412_vp(linearMaskVP), 1);
+fit4412_vp = polyfit(alphaVP_deg(linearMaskVP), cl4412_vp(linearMaskVP), 1);
+
+slope0012_vp = fit0012_vp(1);
+slope2412_vp = fit2412_vp(1);
+slope4412_vp = fit4412_vp(1);
+
+alphaL0_0012_vp = -fit0012_vp(2)/fit0012_vp(1);
+alphaL0_2412_vp = -fit2412_vp(2)/fit2412_vp(1);
+alphaL0_4412_vp = -fit4412_vp(2)/fit4412_vp(1);
+
+%% Print results to command window
+
+fprintf('\n');
+fprintf('TASK 4 RESULTS\n');
+fprintf('Using N = %d total panels from Task 2\n\n', N_panels);
+
+fprintf('NACA 0012\n');
+fprintf('Experimental lift slope = %.4f per degree\n', slope0012_exp);
+fprintf('Experimental zero-lift angle = %.4f deg\n', alphaL0_0012_exp);
+fprintf('Thin airfoil lift slope = %.4f per degree\n', slopeTheory_deg);
+fprintf('Thin airfoil zero-lift angle = %.4f deg\n', alphaL0_0012_theory);
+fprintf('Vortex panel lift slope = %.4f per degree\n', slope0012_vp);
+fprintf('Vortex panel zero-lift angle = %.4f deg\n\n', alphaL0_0012_vp);
+
+fprintf('NACA 2412\n');
+fprintf('Experimental lift slope = %.4f per degree\n', slope2412_exp);
+fprintf('Experimental zero-lift angle = %.4f deg\n', alphaL0_2412_exp);
+fprintf('Thin airfoil lift slope = %.4f per degree\n', slopeTheory_deg);
+fprintf('Thin airfoil zero-lift angle = %.4f deg\n', alphaL0_2412_theory);
+fprintf('Vortex panel lift slope = %.4f per degree\n', slope2412_vp);
+fprintf('Vortex panel zero-lift angle = %.4f deg\n\n', alphaL0_2412_vp);
+
+fprintf('NACA 4412\n');
+fprintf('Experimental lift slope = %.4f per degree\n', slope4412_exp);
+fprintf('Experimental zero-lift angle = %.4f deg\n', alphaL0_4412_exp);
+fprintf('Thin airfoil lift slope = %.4f per degree\n', slopeTheory_deg);
+fprintf('Thin airfoil zero-lift angle = %.4f deg\n', alphaL0_4412_theory);
+fprintf('Vortex panel lift slope = %.4f per degree\n', slope4412_vp);
+fprintf('Vortex panel zero-lift angle = %.4f deg\n\n', alphaL0_4412_vp);
+
+
+%% Task 4 Plot
+
+figure(5);
+plot(alpha0012_deg, cl0012_exp, 'ko', 'LineWidth', 1.5, 'MarkerSize', 6)
+hold on
+plot(alpha2412_deg, cl2412_exp, 'bo', 'LineWidth', 1.5, 'MarkerSize', 6)
+plot(alpha4412_deg, cl4412_exp, 'ro', 'LineWidth', 1.5, 'MarkerSize', 6)
+
+plot(alphaTheory_deg, cl0012_theory, 'k-', 'LineWidth', 1.5)
+plot(alphaTheory_deg, cl2412_theory, 'b-', 'LineWidth', 1.5)
+plot(alphaTheory_deg, cl4412_theory, 'r-', 'LineWidth', 1.5)
+
+plot(alphaVP_deg, cl0012_vp, 'k--', 'LineWidth', 1.8)
+plot(alphaVP_deg, cl2412_vp, 'b--', 'LineWidth', 1.8)
+plot(alphaVP_deg, cl4412_vp, 'r--', 'LineWidth', 1.8)
+
+xlabel('\alpha (deg)')
+ylabel('c_l')
+title('Effect of Airfoil Camber on Lift')
+legend('NACA 0012 Experimental', ...
+       'NACA 2412 Experimental', ...
+       'NACA 4412 Experimental', ...
+       'NACA 0012 Thin Airfoil Theory', ...
+       'NACA 2412 Thin Airfoil Theory', ...
+       'NACA 4412 Thin Airfoil Theory', ...
+       'NACA 0012 Vortex Panel', ...
+       'NACA 2412 Vortex Panel', ...
+       'NACA 4412 Vortex Panel', ...
+       'Location', 'best')
+grid on
+xlim([-15 15])
+hold off
