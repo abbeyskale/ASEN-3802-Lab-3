@@ -691,3 +691,4 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 CIRCULATION = sum(S.*V);
 CL = 2*CIRCULATION/CHORD;
+end
