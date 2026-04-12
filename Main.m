@@ -526,6 +526,22 @@ set(get(gca,'YLabel'),'Color','k')       % y-label black
 set(lgnd, 'Color', 'w', 'TextColor', 'k') % legend white with black text
 hold off
 
+
+%% Part 2
+b = 40; %feet
+a0_t = 1;
+a0_r = 1.5;
+c_t = 5; 
+c_r = 20;
+aero_t = 10;
+aero_r = 10;
+geo_t = 10;
+geo_r = 10;
+N = 3;
+
+
+
+
 %% NACA Airfoils function
 function [x_b, y_b, x, yc] = NACA_Airfoils(m,p,t,c,N)
 

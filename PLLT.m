@@ -11,19 +11,48 @@ aero_r is the zero-lift angle of attack at the root (in degrees)
 geo_t is the geometric angle of attack at the tips (in degrees)
 geo_r is the geometric angle of attack at the root (in degrees)
 N is number of terms in series expansion
+
 Outputs: 
 e = space efficiancy factor
 C_L = coeff of lift
 C_Di = induced coeff of drag
 %}
 
+% solve linearly
+y = linspace(0,b/2,100);
+for i= 1:size(y)
+if y(i) > -b/2 && y(i) < 0
+    c = c_r + (c_r-c_t)*y/(b/2);
+    a0 = a0_r + (a0_r-a0_t)*y/(b/2);
+    aero = aero_r + (aero_r-aero_t)*y/(b/2);
+    geo = geo_r + (geo_r-geo_t)*y/(b/2);
+else 
+    c = c_r + (c_t-c_r)*y/(b/2);
+    a0 = a0_r + (a0_t-a0_r)*y/(b/2);
+    aero = aero_r + (aero_t-aero_r)*y/(b/2);
+    geo = geo_r + (geo_t-geo_r)*y/(b/2);
+end
+end
+
+n_odd = 1:2:N;
+
 for i=1:N
-theta_i = i*pi/(2*N);
+    theta = i*pi/(2*N);
+    n = n_odd(i);
+    M(i,i) = sin(n*theta(i)) * ((2*b/(a0*c(i)) + n/sin(theta(i))));
+end
 
-for j=1:N1
-gam_sum = 
-Gamma = 2*b*V_infin*
+A = M / repmat(geo,N,1);
 
+delta = 0;
 
-alpha = 4*b / (a0_t)
+for j = 2:N
+    n = n_odd(j);
+    delta = delta + n*(A(i)/A(1))^2;
+end
+
+e = 1 / (1 + delta);
+
+S = b*((c_r - c_t)/2 + c_t);
+c_L = A(1) * pi * b^2 / S;
 
