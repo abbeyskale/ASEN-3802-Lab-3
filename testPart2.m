@@ -9,6 +9,6 @@ aero_t = 10;
 aero_r = 10;
 geo_t = 10;
 geo_r = 10;
-N = 3;
+N = 5;
 
-[e,cl,cdi] = PLLT(b,a0_t,a0_r,c_t,c_r,aero_t,aero_r,geo_t,geo_r,N)
+[e,cl,cdi] = PLLT(b,a0_t,a0_r,c_t,c_r,aero_t,aero_r,geo_t,geo_r,N);

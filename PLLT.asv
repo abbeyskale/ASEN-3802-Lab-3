@@ -36,10 +36,16 @@ end
 
 n_odd = 1:2:N;
 
+M = zeros(N,N);
+theta = zeros(1,N);
 for i=1:N
-    theta = i*pi/(2*N);
-    n = n_odd(i);
-    M(i,i) = sin(n*theta(i)) * ((2*b/(a0*c(i)) + n./sin(theta(i))));
+    theta(i) = i*pi/(2*N);
+end
+for i=1:N
+    for j=1:N
+    n = n_odd(j);
+    M(i,j) = sin(n*theta(i)) * ((2*b./(a0*c(i)) + n./sin(theta(i))));
+    end
 end
 
 A = M / repmat(geo,N,1);

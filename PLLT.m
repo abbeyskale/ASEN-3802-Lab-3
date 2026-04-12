@@ -34,28 +34,36 @@ else
 end
 end
 
+% left hand side is effective angle of attack
+alpha_eff = geo - aero;
 n_odd = 1:2:N;
 
-
+M = zeros(N,N);
+theta = zeros(1,N);
 for i=1:N
-    for j=1:N
-    theta = i*pi/(2*N);
+    theta(i) = i*pi/(2*N);
+end
+for i=1:size(a0)
+    for j=1:size(a0)
     n = n_odd(j);
-    M(i,j) = sin(n*theta(i)) * ((2*b./(a0*c(i)) + n./sin(theta(i))));
+    test(i,j) = sin(n*theta(i));
+    test2(i,j) = 4*b/(a0(i)*c(i));
+    test3(i,j) = n/sin(theta(i));
+    M(i,j) = sin(n*theta(i)) * (4*b./(a0(i)*c(i)) + n/sin(theta(i)));
     end
 end
 
-A = M / repmat(geo,N,1);
+A = M ./ alpha_eff;
 
 delta = 0;
 
-for j = 2:N
-    n = n_odd(j);
-    delta = delta + n*(A(i)/A(1))^2;
-end
-
-e = 1 / (1 + delta);
-
-S = b*((c_r - c_t)/2 + c_t);
-c_L = A(1) * pi * b^2 / S;
+% for j = 2:N
+%     n = n_odd(j);
+%     delta = delta + n*(A(i)/A(1))^2;
+% end
+% 
+% e = 1 / (1 + delta);
+% 
+% S = b*((c_r - c_t)/2 + c_t);
+% c_L = A(1) * pi * b^2 / S;
 
