@@ -7,8 +7,8 @@ c_t = 5;
 c_r = 20;
 aero_t = 10;
 aero_r = 10;
-geo_t = .01;
-geo_r = .01;
+geo_t = 10;
+geo_r = 10;
 N = 5;
 
 [e,cl,cdi] = PLLT(b,a0_t,a0_r,c_t,c_r,aero_t,aero_r,geo_t,geo_r,N);
