@@ -1,107 +1,129 @@
+%% ASEN 3802 - Computational Assignment 01 - Part 2
+% This code uses Prandtl’s Lifting Line Theory (PLLT) to compute and plot
+% the induced drag factor (delta) as a function of taper ratio for
+% multiple aspect ratios, and compares results to Figure 5.20 from the
+% Duncementals of Aerodynamics textbook.
+
 clc; clear; close all;
 
-b = 10;
-c_r = 1;
-a0_r = 2*pi;
-a0_t = 2*pi;
-aero_r = 0;
-aero_t = 0;
-geo_r = 5;
-geo_t = 5;
-N = 50;
+%% Parameters
+AR_targets = [4 6 8 10]; % Aspect ratios from textbook
+lambda_vals = linspace(0.00001,1.0,100);% Taper ratio range
 
-lambda_vals = linspace(0.1,1,50);
-AR_targets = [4 6 8 10];
+% Wing / airfoil properties (constant for validation)
+c_r   = 1;  % Root chord
+a0_r  = 2*pi; % Lift slope (root)
+a0_t  = 2*pi; % Lift slope (tip)
+aero_r = 0; % Zero-lift angle (root)
+aero_t = 0; % Zero-lift angle (tip)
+geo_r  = 5; % Geometric AoA (root)
+geo_t  = 5; % Geometric AoA (tip)
+N = 50; % Number of Fourier terms
 
-figure; 
+%% Plot setup
+figure;
 hold on;
+grid on;
 
+%% Loop over aspect ratios
 for k = 1:length(AR_targets)
 
-   AR_target = AR_targets(k);
-   delta_vals = zeros(size(lambda_vals));
+    AR_target = AR_targets(k);
+    delta_vals = zeros(size(lambda_vals));
 
-   for i = 1:length(lambda_vals)
+    for i = 1:length(lambda_vals)
 
-       lambda = lambda_vals(i);
-       c_t = lambda * c_r;
+        lambda = lambda_vals(i);
+        c_t = lambda * c_r;
 
-       % Adjust span to hit desired AR
-       S = b*(c_r + c_t)/2;
-       AR = b^2 / S;
+        % Compute span for desired aspect ratio
+        b_scaled = AR_target * (c_r + c_t) / 2;
 
-       % Scale span to match target AR
-       b_scaled = sqrt(AR_target * S);
-       [e, c_L, c_Di] = PLLT(b_scaled,a0_t,a0_r,c_t,c_r,aero_t,aero_r,geo_t,geo_r,N);
-       delta_vals(i) = (1/e) - 1;
+        % Call PLLT function
+        [e,~,~] = PLLT(b_scaled,a0_t,a0_r,c_t,c_r,...
+                       aero_t,aero_r,geo_t,geo_r,N);
 
-   end
-   plot(lambda_vals, delta_vals, 'LineWidth',2)
+        % Induced drag factor
+        delta_vals(i) = 1/e - 1;
+
+    end
+
+    % Plot each AR curves on one plot
+    plot(lambda_vals, delta_vals, 'LineWidth',2, ...
+        'DisplayName',['AR = ' num2str(AR_target)])
 
 end
-xlabel('Taper ratio c_t/c_r')
+
+%% Labels and formatting
+xlabel('Taper ratio c_t / c_r')
 ylabel('\delta')
-legend('AR=4','AR=6','AR=8','AR=10')
-grid on
+title('Induced Drag Factor vs Taper Ratio (PLLT)')
+legend('Location','northeast')
+set(gca,'FontSize',12)
 
-function [e,c_L,c_Di] = PLLT(b,a0_t,a0_r,c_t,c_r,aero_t,aero_r,geo_t,geo_r,N)
+hold off;
+
+%% PLLT Function
+function [e,c_L,c_Di] = PLLT(b,a0_t,a0_r,c_t,c_r,...
+                            aero_t,aero_r,geo_t,geo_r,N)
+
 %{
-Inputs: 
-b is span (in feet)
-a0_t is the cross-sectional lift slope at the tips (per radian)
-a0_r is the cross-sectional lift slope at the root (per radian)
-c_t is the chord at the tips (in feet)
-c_r is the chord at the root (in feet)
-aero_t is the zero-lift angle of attack at the tips (in degrees)
-aero_r is the zero-lift angle of attack at the root (in degrees)
-geo_t is the geometric angle of attack at the tips (in degrees)
-geo_r is the geometric angle of attack at the root (in degrees)
-N is number of terms in series expansion
+Inputs:
+b = span
+a0_t/r = lift slope (tip/root)
+c_t/r = chord (tip/root)
+aero_t/r = zero-lift angle (deg)
+geo_t/r = geometric angle (deg)
+N = number of Fourier terms
 
-Outputs: 
-e = space efficiancy factor
-C_L = coeff of lift
-C_Di = induced coeff of drag
+Outputs:
+e = span efficiency factor
+c_L = lift coefficient
+c_Di = induced drag coefficient
 %}
 
-% solve linearly
-for i=1:N
+%% Theta distribution
+theta = zeros(1,N);
+for i = 1:N
     theta(i) = i*pi/(2*N);
 end
 
-c = c_r + (c_t-c_r).*cos(theta);
-a0 = a0_r + (a0_t-a0_r).*cos(theta);
-aero = aero_r + (aero_t-aero_r).*cos(theta);
-geo = geo_r + (geo_t-geo_r).*cos(theta);
+%% Spanwise variation
+c    = c_r   + (c_t   - c_r  ).*cos(theta);
+a0   = a0_r  + (a0_t  - a0_r ).*cos(theta);
+aero = aero_r+ (aero_t- aero_r).*cos(theta);
+geo  = geo_r + (geo_t - geo_r ).*cos(theta);
 
-% left hand side is effective angle of attack
-alpha_eff = geo - aero;
+%% Effective angle of attack
+alpha_eff = deg2rad(geo - aero);
 
+%% Build system matrix
 M = zeros(N,N);
 
-for i=1:N
-    for j=1:N
-    n = 2*j - 1;
-    M(i,j) = (4*b/(a0(i)*c(i)) * sin(n*theta(i))) + n*sin(n*theta(i))/sin(theta(i));
+for i = 1:N
+    for j = 1:N
+        n = 2*j - 1;
+        M(i,j) = (4*b/(a0(i)*c(i))) * sin(n*theta(i)) ...
+               + n*sin(n*theta(i))/sin(theta(i));
     end
 end
 
+%% Solve for Fourier coefficients
 A = M \ alpha_eff';
 
+%% Compute delta
 delta = 0;
-e = 0;
-c_L = 0;
-c_Di = 0;
-
 for j = 2:N
-    n = 2*j -1;
+    n = 2*j - 1;
     delta = delta + n*(A(j)/A(1))^2;
 end
 
-S = b*((c_r - c_t)/2 + c_t);
+%% Aerodynamic quantities
+S  = b*(c_r + c_t)/2;
 AR = b^2 / S;
-e = 1 / (1 + delta);
-c_L = A(1)*pi*AR;
-c_Di = c_L^2 / (pi*e*AR);
+
+e    = 1/(1 + delta);
+c_L  = A(1)*pi*AR;
+c_Di = c_L^2/(pi*e*AR);
 
 end
