@@ -1,0 +1,114 @@
+clc; clear; close all;
+
+% Arbitrary geometic values that match closest to desired graph 
+b = 10;
+c_r = 1;
+a0_r = 2*pi;
+a0_t = 2*pi;
+aero_r = 0;
+aero_t = 0;
+geo_r = 5;
+geo_t = 5;
+N = 50;
+
+lambda_vals = linspace(0.1,1,50); % Avoid lambda of 0
+AR_vals = [4 6 8 10]; % From desired graph
+
+figure; 
+hold on;
+
+for k = 1:length(AR_vals)
+
+   AR_target = AR_vals(k);
+   delta_vals = zeros(size(lambda_vals));
+
+   for i = 1:length(lambda_vals)
+
+       lambda = lambda_vals(i);
+       c_t = lambda * c_r;
+
+       % Adjust span to hit desired AR
+       S = b*(c_r + c_t)/2;
+       AR = b^2 / S;
+
+       % Scale span to match target AR
+       b_scaled = sqrt(AR_target * S);
+       [e, c_L, c_Di] = PLLT(b_scaled,a0_t,a0_r,c_t,c_r,aero_t,aero_r,geo_t,geo_r,N);
+       delta_vals(i) = (1/e) - 1;
+
+   end
+   plot(lambda_vals, delta_vals)
+
+end
+xlabel('Taper ratio c_t/c_r')
+ylabel('\delta')
+legend('AR=4','AR=6','AR=8','AR=10')
+grid on
+
+function [e,c_L,c_Di] = PLLT(b,a0_t,a0_r,c_t,c_r,aero_t,aero_r,geo_t,geo_r,N)
+%{
+Inputs: 
+b is span (in feet)
+a0_t is the cross-sectional lift slope at the tips (per radian)
+a0_r is the cross-sectional lift slope at the root (per radian)
+c_t is the chord at the tips (in feet)
+c_r is the chord at the root (in feet)
+aero_t is the zero-lift angle of attack at the tips (in degrees)
+aero_r is the zero-lift angle of attack at the root (in degrees)
+geo_t is the geometric angle of attack at the tips (in degrees)
+geo_r is the geometric angle of attack at the root (in degrees)
+N is number of terms in series expansion
+
+Outputs: 
+e = space efficiancy factor
+C_L = coeff of lift
+C_Di = induced coeff of drag
+%}
+
+% Theta equation
+for i=1:N
+    theta(i) = i*pi/(2*N);
+end
+
+% Solve linearly between root and tip values
+c = c_r + (c_t-c_r).*cos(theta);
+a0 = a0_r + (a0_t-a0_r).*cos(theta);
+aero = aero_r + (aero_t-aero_r).*cos(theta);
+geo = geo_r + (geo_t-geo_r).*cos(theta);
+
+% Left hand side is effective angle of attack
+alpha_eff = geo - aero;
+
+% Prealocate M
+M = zeros(N,N);
+
+for i=1:N
+    for j=1:N
+    % Only odd terms for symmetric airfoils
+    n = 2*j - 1;
+    % Derived from given equation to solve for A values
+    M(i,j) = (4*b/(a0(i)*c(i)) * sin(n*theta(i))) + n*sin(n*theta(i))/sin(theta(i));
+    end
+end
+% Solve for A values
+A = M \ alpha_eff';
+
+% Prealocate
+delta = 0;
+
+for j = 2:N
+    % Again only odd terms
+    n = 2*j -1;
+    delta = delta + n*(A(j)/A(1))^2;
+end
+
+% Solve for wing area
+S = b*((c_r - c_t)/2 + c_t);
+AR = b^2 / S;
+% Span efficency factor
+e = 1 / (1 + delta);
+% Coeffiecent of Lift
+c_L = A(1)*pi*AR;
+% Coefficient of induced drag
+c_Di = c_L^2 / (pi*e*AR);
+end
