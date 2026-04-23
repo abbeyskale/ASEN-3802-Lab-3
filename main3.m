@@ -385,8 +385,8 @@ fprintf('Experimental lift slope = %.4f per degree\n', slope0012_exp);
 fprintf('Experimental zero-lift angle = %.4f deg\n', alphaL0_0012_exp);
 fprintf('Thin airfoil lift slope = %.4f per degree\n', slopeTheory_deg);
 fprintf('Thin airfoil zero-lift angle = %.4f deg\n', alphaL0_0012_theory);
-fprintf('Vortex panel lift slope = %.4f per degree\n', slope0012_vp);
-fprintf('Vortex panel zero-lift angle = %.4f deg\n\n', alphaL0_0012_vp);
+fprintf('Vortex panel lift slope = %.4f per degree\n', slope0012_vp); % should be 0.1189
+fprintf('Vortex panel zero-lift angle = %.4f deg\n\n', alphaL0_0012_vp); 
 
 fprintf('NACA 2412\n');
 fprintf('Experimental lift slope = %.4f per degree\n', slope2412_exp);
@@ -589,29 +589,33 @@ root airfoil is a NACA 2412 while the tip airfoil is a NACA 0012.
 %}
 
 %% Parameters 
-b3= 33+(4/12); 
-c_r3= 5+(4/12);
-c_t3= 3+ (8.5/12);
+b3= 33+(4/12); % feet
+c_r3= 5+(4/12); % feet
+c_t3= 3+ (8.5/12); % feet
 
 % Wing Area
-S3= b3*(c_r3+c_t3)/2;
+S3= b3*(c_r3+c_t3)/2; % feet^2
 
 %% NACA 0012 (tip) and  NACA 2412 (root) properties 
 
 %Lift slope root and tip
-a0_r3= slope2412_vp*(pi/180);
-a0_t3=slope0012_vp*(pi/180);
-
+% 2 pi 
+% a0_r3= .11891 ; % per deg
+% a0_t3= .11891 ; % per deg
+% 2 pi 
+a0_r3= 2* pi ; % per deg
+a0_t3= 2*pi ; % per deg
 % Zero lift angle for root and tip
-aero_t3= alphaL0_0012_vp;
-aero_r3= alphaL0_2412_vp; 
-
+% trying hard code values to debug
+aero_t3= 0; % degrees
+aero_r3= -2.1456; % degrees
+alpha = 4; % degrees
 %Geometric AoA for root and tip 
-geo_r3= 1; %in degrees
-geo_t3= 0; 
+geo_r3= 1 + alpha; % degrees
+geo_t3= 0 + alpha; 
 
 %% Testing N values for convergence
-N_vals3= 1:2:51; %odd terms 
+N_vals3= 1:2:101; %odd terms 
 CL_val3= zeros(size(N_vals3));
 CDi_val3= zeros(size(N_vals3));
 
@@ -633,12 +637,12 @@ for i=1:length(N_vals3)
 end
 
 error_Cl= abs(CL_val3-CL_3)./ CL_3*100;
-error_CDi=abs(CDi_val3-CDi_3 )./ CDi_3*100;
+error_CDi= abs(CDi_val3-CDi_3 )./ CDi_3*100;
 
 target= [10 1 0.1];
 
-for t3=1:length(target)
-total= target(t3);
+for j=1:length(target)
+total= target(j);
 
 i_CL=find( error_Cl < total,1,'first');
 i_CDi= find(error_CDi < total,1,'first');
@@ -656,7 +660,7 @@ hold on;
 
 xline(N_vals3(find(error_Cl<10, 1)),'LineStyle','--', 'Color','r');
 xline(N_vals3(find(error_Cl<1, 1)),'LineStyle','--','Color','g');
-xline(N_vals3(find(error_Cl<0.1, 1)),'LineStyle','--','Color','y');
+xline(N_vals3(find(error_Cl<0.1, 1)),'LineStyle','--','Color','b');
 yline(CL_3, 'LineStyle','-');
 
 xlabel('Odd terms');
@@ -670,7 +674,7 @@ hold on;
 
 xline(N_vals3(find(error_CDi<10,1)),'LineStyle','--','Color','r');
 xline(N_vals3(find(error_CDi<1,1)),'LineStyle','--','Color','g');
-xline(N_vals3(find(error_CDi<0.1,1)),'LineStyle','--','Color','y');
+xline(N_vals3(find(error_CDi<0.1,1)),'LineStyle','--','Color','b');
 yline(CDi_3,'LineStyle','-');
 
 xlabel('Odd terms');
