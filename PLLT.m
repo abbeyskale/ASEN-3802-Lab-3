@@ -43,9 +43,6 @@ end
 A = M \ alpha_eff';
 
 delta = 0;
-e = 0;
-c_L = 0;
-c_Di = 0;
 
 for j = 2:N
     n = 2*j -1;

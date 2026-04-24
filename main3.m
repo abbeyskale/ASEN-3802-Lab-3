@@ -599,23 +599,20 @@ S3= b3*(c_r3+c_t3)/2; % feet^2
 %% NACA 0012 (tip) and  NACA 2412 (root) properties 
 
 %Lift slope root and tip
-% 2 pi 
-% a0_r3= .11891 ; % per deg
-% a0_t3= .11891 ; % per deg
-% 2 pi 
-a0_r3= 2* pi ; % per deg
-a0_t3= 2*pi ; % per deg
+% correct value, corrected from past submission
+a0_r3= 6.88;
+a0_t3= 6.88;
+
 % Zero lift angle for root and tip
-% trying hard code values to debug
-aero_t3= 0; % degrees
-aero_r3= -2.1456; % degrees
+aero_t3 = 0; % degrees
+aero_r3= alphaL0_2412_vp; % degrees
 alpha = 4; % degrees
 %Geometric AoA for root and tip 
 geo_r3= 1 + alpha; % degrees
 geo_t3= 0 + alpha; 
 
 %% Testing N values for convergence
-N_vals3= 1:2:101; %odd terms 
+N_vals3= 1:2:300; %odd terms 
 CL_val3= zeros(size(N_vals3));
 CDi_val3= zeros(size(N_vals3));
 
