@@ -599,20 +599,19 @@ S3= b3*(c_r3+c_t3)/2; % feet^2
 %% NACA 0012 (tip) and  NACA 2412 (root) properties 
 
 %Lift slope root and tip
-% correct value, corrected from past submission
+% correct values, corrected from past submission
 a0_r3= 6.88;
 a0_t3= 6.88;
-
 % Zero lift angle for root and tip
-aero_t3 = 0; % degrees
+aero_t3 = 0; % degrees for symetrical airfoils
 aero_r3= alphaL0_2412_vp; % degrees
 alpha = 4; % degrees
 %Geometric AoA for root and tip 
 geo_r3= 1 + alpha; % degrees
-geo_t3= 0 + alpha; 
+geo_t3= 0 + alpha; % degrees
 
 %% Testing N values for convergence
-N_vals3= 1:2:300; %odd terms 
+N_vals3= 1:2:51; %odd terms (N = 51 gives up to four sig figs same values as N = 300)
 CL_val3= zeros(size(N_vals3));
 CDi_val3= zeros(size(N_vals3));
 
@@ -641,15 +640,20 @@ target= [10 1 0.1];
 for j=1:length(target)
 total= target(j);
 
-i_CL=find( error_Cl < total,1,'first');
-i_CDi= find(error_CDi < total,1,'first');
-
-fprintf('Tolerance: %.1f%%\n',total);
-fprintf('Cl to N: %d, Cl= %.4f\n',N_vals3(i_CL),CL_val3(i_CL));
-fprintf('CDi to N: %d, CDi= %.4f\n',N_vals3(i_CDi),CDi_val3(i_CDi));
+i_CL(j)=find( error_Cl < total,1,'first');
+i_CDi(j)= find(error_CDi < total,1,'first');
 end
+%% Table for Deliverable 1
+Percent_Error = ["10%"; "1%"; "0.1%"];
+N_for_CL = [i_CL(1);  i_CL(2);  i_CL(3)];
+N_for_CDi = [i_CDi(1); i_CDi(2); i_CDi(3)];
+Values_for_CL = [CL_val3(i_CL(1));  CL_val3(i_CL(2));  CL_val3(i_CL(3))];
+Values_for_CDi = [CDi_val3(i_CDi(1)); CDi_val3(i_CDi(2)); CDi_val3(i_CDi(3))];
 
-%% Plots for Part 3 
+Table1 = table(Percent_Error, N_for_CL, N_for_CL, Values_for_CL, Values_for_CDi);
+disp(Table1)
+
+%% Plots for Deliverable 2
 %Cl convergence plot
 figure(7);
 plot(N_vals3,CL_val3,'-o');
@@ -659,10 +663,11 @@ xline(N_vals3(find(error_Cl<10, 1)),'LineStyle','--', 'Color','r');
 xline(N_vals3(find(error_Cl<1, 1)),'LineStyle','--','Color','g');
 xline(N_vals3(find(error_Cl<0.1, 1)),'LineStyle','--','Color','b');
 yline(CL_3, 'LineStyle','-');
-
+legend('CL Values','10 Percent Error','1 Percent Error','0.1 Percent Error','Convergence Value');
 xlabel('Odd terms');
 ylabel('CL');
 title('Convergence of CL');
+grid on;
 
 %CDi convergence plot
 figure(8);
@@ -673,7 +678,7 @@ xline(N_vals3(find(error_CDi<10,1)),'LineStyle','--','Color','r');
 xline(N_vals3(find(error_CDi<1,1)),'LineStyle','--','Color','g');
 xline(N_vals3(find(error_CDi<0.1,1)),'LineStyle','--','Color','b');
 yline(CDi_3,'LineStyle','-');
-
+legend('CDi Values','10 Percent Error','1 Percent Error','0.1 Percent Error','Convergence Value');
 xlabel('Odd terms');
 ylabel('CDi');
 title('Convergence of CDi');
