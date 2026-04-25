@@ -592,9 +592,9 @@ root airfoil is a NACA 2412 while the tip airfoil is a NACA 0012.
 b3= 33+(4/12); % feet
 c_r3= 5+(4/12); % feet
 c_t3= 3+ (8.5/12); % feet
-
 % Wing Area
 S3= b3*(c_r3+c_t3)/2; % feet^2
+AR3 = b3^2 / S3; 
 
 %% NACA 0012 (tip) and  NACA 2412 (root) properties 
 
@@ -608,7 +608,7 @@ aero_r3= alphaL0_2412_vp; % degrees
 alpha = 4; % degrees
 %Geometric AoA for root and tip 
 geo_r3= 1 + alpha; % degrees
-geo_t3= 0 + alpha; % degrees
+geo_tVals= 0 + alpha; % degrees
 
 %% Testing N values for convergence
 N_vals3= 1:2:51; %odd terms (N = 51 gives up to four sig figs same values as N = 300)
@@ -617,7 +617,7 @@ CDi_val3= zeros(size(N_vals3));
 
 N_ref3= max(N_vals3); %reference the exact sln 
 
-[e_3, CL_3,CDi_3]=PLLT(b3,a0_t3,a0_r3,c_t3,c_r3,aero_t3,aero_r3,geo_t3,geo_r3,N_ref3);
+[e_3, CL_3,CDi_3]=PLLT(b3,a0_t3,a0_r3,c_t3,c_r3,aero_t3,aero_r3,geo_tVals,geo_r3,N_ref3);
 
 delta_val= (1/e_3)-1;
 
@@ -627,7 +627,7 @@ for i=1:length(N_vals3)
 
     N3=N_vals3(i);
    
-    [e3,CL4,CDi3]= PLLT(b3,a0_t3,a0_r3,c_t3,c_r3,aero_t3,aero_r3,geo_t3,geo_r3,N3);
+    [e3,CL4,CDi3]= PLLT(b3,a0_t3,a0_r3,c_t3,c_r3,aero_t3,aero_r3,geo_tVals,geo_r3,N3);
     CL_val3(i)=CL4;
     CDi_val3(i)= CDi3;
 end
@@ -663,7 +663,7 @@ xline(N_vals3(find(error_Cl<10, 1)),'LineStyle','--', 'Color','r');
 xline(N_vals3(find(error_Cl<1, 1)),'LineStyle','--','Color','g');
 xline(N_vals3(find(error_Cl<0.1, 1)),'LineStyle','--','Color','b');
 yline(CL_3, 'LineStyle','-');
-legend('10 Percent Error','1 Percent Error','0.1 Percent Error','Convergence Value');
+legend('CL Values','10 Percent Error','1 Percent Error','0.1 Percent Error','Convergence Value');
 xlabel('Odd terms');
 ylabel('CL');
 title('Convergence of CL');
@@ -678,11 +678,60 @@ xline(N_vals3(find(error_CDi<10,1)),'LineStyle','--','Color','r');
 xline(N_vals3(find(error_CDi<1,1)),'LineStyle','--','Color','g');
 xline(N_vals3(find(error_CDi<0.1,1)),'LineStyle','--','Color','b');
 yline(CDi_3,'LineStyle','-');
-legend('10 Percent Error','1 Percent Error','0.1 Percent Error','Convergence Value');
+legend('CDi Values','10 Percent Error','1 Percent Error','0.1 Percent Error','Convergence Value');
 xlabel('Odd terms');
 ylabel('CDi');
 title('Convergence of CDi');
 grid on;
+
+%% Deliverable 3
+% using only 0.1 percent error so N = 8
+% Lift force when V = 100 knots
+V = 100 * 1.6878; % knots to ft/s conversion from unitconverters.net
+% Standard Atmo numbers from Anderson Appendix E @ h = 10000ft
+rho = 1.7556*10^(-3); %slugs / ft^3
+
+Lift_Force = .5*rho*V^2*CL_val3(i_CL(3))*S3; %slugs ft/s^2
+Induced_Drag_Force = .5*rho*V^2*CDi_val3(i_CDi(3))*S3; %slugs ft/s^2
+
+% From Fig 5 in Theroy of Wing Sections @ Cl = 0.5284
+cd = 0.03;
+Total_Drag_Force = .5*rho*V^2*(CDi_val3(i_CDi(3)) + cd)*S3;
+Aerodynamic_Efficiency = Lift_Force / Total_Drag_Force;
+
+Table2 = table(Lift_Force, Induced_Drag_Force, Aerodynamic_Efficiency);
+disp(Table2)
+
+%% Deliverable 4
+% Total drag as a function of AoA
+alpha_vals = linspace(-10,10,100); % range from -10 to 10 degrees
+
+for i=1: length(alpha_vals)
+    % only values that needed changed are geometric AoA
+    geo_rVals= 1 + alpha_vals(i); % degrees
+    geo_tVals= 0 + alpha_vals(i); % degrees
+    [e_vals(i),CL_vals(i),CDi_vals(i)]= PLLT(b3,a0_t3,a0_r3,c_t3,c_r3,aero_t3,aero_r3,geo_tVals,geo_rVals,N3);
+    Total_D_vals(i) = .5*rho*V^2*(CDi_vals(i) + cd)*S3;%slugs ft/s^2
+    Lift_vals(i) = .5*rho*V^2*CL_vals(i)*S3; % slugs ft/s^2
+
+end
+
+figure; 
+plot(alpha_vals,Total_D_vals);
+xlabel('Angle of Attack (degrees)');
+ylabel('Total Drag Force (slugs ft/s^2');
+title('Drag Force vs Angle of Attack');
+grid on;
+
+%% Deliverable 5
+
+figure; 
+plot(alpha_vals,Lift_vals);
+xlabel('Angle of Attack (degrees)');
+ylabel('Lift Force / Total Drag Force');
+title('Aerodynamic Efficiency of the Wing vs Angle of Attack');
+grid on;
+
 
 %% PLLT Function
 function [e,c_L,c_Di] = PLLT(b,a0_t,a0_r,c_t,c_r,aero_t,aero_r,geo_t,geo_r,N)
