@@ -585,7 +585,10 @@ hold off;
 %% Part 3 
 %{
 This part of the code uses the PLLF function to a wing of a Cessna 140. The
-root airfoil is a NACA 2412 while the tip airfoil is a NACA 0012. 
+root airfoil is a NACA 2412 while the tip airfoil is a NACA 0012. It does a
+finds how many terms are needed to compute CL and CDi accurately within
+10%,1% and 0.1% error. Then it uses the converged results to calculate
+lift, drag and L/D. 
 %}
 
 %% Parameters 
@@ -696,15 +699,6 @@ Induced_Drag_Force = .5*rho*V^2*CDi_val3(i_CDi(3))*S3; % lbs
 
 % From Page 466 Theroy of Wing Sections @ Cl = 0.5284
 cd = 0.007;
-
-c_d_vals = [(0.008+0.0075)/2, (0.0075+0.007)/2, (0.0072+0.0061)/2,(0.007+0.006)/2, (0.0068+0.0059)/2, (0.0067+0.0059)/2, (0.0066+0.006)/2, (0.0067+0.0061)/2, (0.0068+0.0065)/2, (0.007+0.007)/2, (0.008+0.0069)/2];
-
-% dyn_press = 0.5*rho*V^2;
-% d_4 = c_d_lookup(end-1)*dyn_press*S3;
-% Di_4 = c_Di_p(end)*dyn_press*S3;
-% 
-% L_4 = c_L_p(end)*dyn_press*S3;
-% D_tot_4 = d_4 + Di_4;
 
 Total_Drag_Force = .5*rho*V^2*(CDi_val3(i_CDi(3)) + cd)*S3;
 Aerodynamic_Efficiency = Lift_Force / Total_Drag_Force;
