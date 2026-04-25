@@ -694,8 +694,18 @@ rho = 1.7556*10^(-3); %slugs / ft^3
 Lift_Force = .5*rho*V^2*CL_val3(i_CL(3))*S3; % lbs
 Induced_Drag_Force = .5*rho*V^2*CDi_val3(i_CDi(3))*S3; % lbs
 
-% From Fig 5 in Theroy of Wing Sections @ Cl = 0.5284
-cd = 0.02;
+% From Page 466 Theroy of Wing Sections @ Cl = 0.5284
+cd = 0.007;
+
+c_d_vals = [(0.008+0.0075)/2, (0.0075+0.007)/2, (0.0072+0.0061)/2,(0.007+0.006)/2, (0.0068+0.0059)/2, (0.0067+0.0059)/2, (0.0066+0.006)/2, (0.0067+0.0061)/2, (0.0068+0.0065)/2, (0.007+0.007)/2, (0.008+0.0069)/2];
+
+% dyn_press = 0.5*rho*V^2;
+% d_4 = c_d_lookup(end-1)*dyn_press*S3;
+% Di_4 = c_Di_p(end)*dyn_press*S3;
+% 
+% L_4 = c_L_p(end)*dyn_press*S3;
+% D_tot_4 = d_4 + Di_4;
+
 Total_Drag_Force = .5*rho*V^2*(CDi_val3(i_CDi(3)) + cd)*S3;
 Aerodynamic_Efficiency = Lift_Force / Total_Drag_Force;
 
@@ -704,7 +714,7 @@ disp(Table2)
 
 %% Deliverable 4
 % Total drag as a function of AoA
-alpha_vals = linspace(-10,10,100); % range from -10 to 10 degrees
+alpha_vals = linspace(-8,8,100); % range from -8 to 8 degrees
 
 for i=1: length(alpha_vals)
     % only values that needed changed are geometric AoA
@@ -713,20 +723,25 @@ for i=1: length(alpha_vals)
     [e_vals(i),CL_vals(i),CDi_vals(i)]= PLLT(b3,a0_t3,a0_r3,c_t3,c_r3,aero_t3,aero_r3,geo_tVals,geo_rVals,N3);
     Total_D_vals(i) = .5*rho*V^2*(CDi_vals(i) + cd)*S3;% lbs
     Lift_vals(i) = .5*rho*V^2*CL_vals(i)*S3; % lbs
-    LoverD(i) = CL_vals(i) / (CDi_vals(i) + cd);
+    LOverD(i) = CL_vals(i) / (CDi_vals(i) + cd);
 end
-
+CD_total = CDi_vals + cd;
 figure; 
-plot(alpha_vals,Total_D_vals);
+plot(alpha_vals,CDi_vals,'b--');
+hold on;
+yline(cd,'r--');
+hold on;
+plot(alpha_vals,CD_total,'k');
 xlabel('Angle of Attack (degrees)');
-ylabel('Total Drag Force (slugs ft/s^2');
-title('Drag Force vs Angle of Attack');
+ylabel('Drag Coefficient');
+title('Drag Coefficient vs Angle of Attack');
 grid on;
+legend('Induced Drag Coefficient','Sectional Drag Coefficient','Total Drag Coefficient','location','best');
 
 %% Deliverable 5
 
 figure; 
-plot(alpha_vals,Lift_vals);
+plot(alpha_vals,LOverD);
 xlabel('Angle of Attack (degrees)');
 ylabel('Lift Force / Total Drag Force');
 title('Aerodynamic Efficiency of the Wing vs Angle of Attack');
